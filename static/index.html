@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أدوات المستندات</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="logo">📄 أدوات المستندات <span class="badge"><span class="dot"></span>محلي 100٪ — بدون إنترنت</span></div>
+  <nav>
+    <button class="tab active" data-view="convert">محوّل الصيغ</button>
+    <button class="tab" data-view="ocr">تفريغ نص OCR</button>
+    <button class="tab" data-view="analyze">تحليل وفحص</button>
+    <button class="tab" data-view="create">إنشاء مستند</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ محوّل الصيغ ============ -->
+  <section id="view-convert" class="view active">
+    <div class="card">
+      <h2>حوّل ملفاتك لأي صيغة</h2>
+      <p class="muted">اسحب أي ملف تقريبًا — الصورة بتتعرّف على النوع من المحتوى: PDF، Word، صور، جداول، كتب (EPUB)، أرشيف، أي صيغة</p>
+      <div id="drop-convert" class="dropzone">
+        <input type="file" id="file-convert" multiple hidden>
+        <div class="dz-inner">📂 أفلت الملفات هنا</div>
+      </div>
+      <ul id="list-convert" class="filelist"></ul>
+      <div class="row">
+        <label>حوّل إلى:</label>
+        <button id="target-open" class="ghost" disabled>اختر الصيغة الهدف ▾</button>
+        <span id="target-label" class="picked"></span>
+      </div>
+      <div id="target-panel" class="panel" hidden>
+        <input type="text" id="target-search" class="text-in" placeholder="🔍 ابحث عن صيغة…">
+        <div id="target-groups"></div>
+      </div>
+      <button id="btn-convert" class="primary" disabled>تحويل ⚡</button>
+      <div id="conv-status" class="status"></div>
+    </div>
+  </section>
+
+  <!-- ============ تفريغ نص OCR ============ -->
+  <section id="view-ocr" class="view">
+    <div class="split">
+      <div class="card">
+        <h2>فرّغ النص من صورة أو PDF</h2>
+        <p class="muted">المحرك المستخدم هو OCR المدمج في ويندوز — محلي بالكامل وبدون إنترنت. بيدعم العربي والإنجليزي.</p>
+        <div id="drop-ocr" class="dropzone">
+          <input type="file" id="file-ocr" hidden>
+          <div class="dz-inner">🖼️ أفلت صورة أو PDF أو Word هنا</div>
+        </div>
+        <ul id="list-ocr" class="filelist"></ul>
+        <div class="row">
+          <label>لغة القراءة:</label>
+          <select id="ocr-lang" class="text-in" style="width:auto;margin:0">
+            <option value="auto">تلقائي (لغة النظام)</option>
+            <option value="ar">عربية</option>
+            <option value="en">إنجليزي</option>
+            <option value="fr">فرنسي</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>التنسيق:</label>
+          <select id="ocr-fmt" class="text-in" style="width:auto;margin:0">
+            <option value="none">بدون أي تنسيق (خام)</option>
+            <option value="simple" selected>تنسيق بسيط (تنظيف الأسطر)</option>
+            <option value="paragraphs">فقرات مترابطة</option>
+            <option value="structured">عناوين وقوائم</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>اتجاه النص:</label>
+          <select id="ocr-dir" class="text-in" style="width:auto;margin:0">
+            <option value="rtl">يمين لشمال (عربي)</option>
+            <option value="ltr">شمال ليمين (إنجليزي)</option>
+            <option value="auto">تلقائي حسب الكلام</option>
+          </select>
+          <label class="check"><input type="checkbox" id="ocr-space"> سطر فاضي بين كل سطر وسطر</label>
+        </div>
+        <button id="btn-ocr" class="primary" disabled>تفريغ النص 🔍</button>
+        <div id="ocr-status" class="status"></div>
+      </div>
+      <aside class="card side-card">
+        <h3>النص المتفرَّغ</h3>
+        <textarea id="ocr-text" class="text-in ocr-out" dir="auto" placeholder="النص هيظهر هنا…" readonly></textarea>
+        <div class="add-row">
+          <button id="ocr-copy" class="ghost" disabled>📋 نسخ</button>
+          <button id="ocr-txt" class="ghost" disabled>⬇ TXT</button>
+          <button id="ocr-pdf" class="ghost" disabled>⬇ PDF</button>
+          <button id="ocr-editor" class="ghost" disabled>✏️ إرسال للمحرر</button>
+        </div>
+        <div id="ocr-meta" class="muted"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ تحليل وفحص ============ -->
+  <section id="view-analyze" class="view">
+    <div class="card">
+      <h2>حلّل مجلدًا كاملاً على جهازك</h2>
+      <p class="muted">اكتب مسار فولدر (مثلاً <span dir="ltr">E:\\صور</span>) وهيديك خريطة شجرة كاملة بكل الطبقات، وعدد كل امتداد، وفحص حقيقي لكل ملف: هل امتداده بيقول الحقيقة ولا ملف مخبي غرض؟</p>
+      <div class="row">
+        <input type="text" id="an-path" class="text-in" dir="ltr" placeholder="مسار المجلد، مثال: E:\Downloads" style="flex:1;margin:0">
+        <button id="btn-analyze" class="primary" style="margin:0">تحليل 🔎</button>
+      </div>
+      <div id="drop-analyze" class="dropzone small" style="margin:10px 0">
+        <input type="file" id="file-analyze" webkitdirectory multiple hidden>
+        <div class="dz-inner">📂 أو اسحب فولدر/ملف هنا — أو اضغط لاختيار فولدر</div>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="an-deep" checked> فحص عميق لكل ملف (بمحتواه الحقيقي)</label>
+      </div>
+      <div class="row">
+        <input type="text" id="an-file" class="text-in" dir="ltr" placeholder="أو فحص ملف واحد: E:\test\فوتو.jpg" style="flex:1;margin:0">
+        <button id="btn-scanfile" class="ghost" style="margin:0">فحص ملف واحد</button>
+      </div>
+      <div id="an-status" class="status"></div>
+    </div>
+    <div id="an-results" class="an-grid" hidden>
+      <div class="card">
+        <h3>ملخص المجلد</h3>
+        <div id="an-summary" class="an-stats"></div>
+        <h3>التصنيفات</h3>
+        <div id="an-cats" class="chips"></div>
+        <h3>الامتدادات (الأكثر)</h3>
+        <div id="an-exts"></div>
+      </div>
+      <div class="card">
+        <h3>خريطة المجلد (شجرة)</h3>
+        <div id="an-tree" class="tree"></div>
+      </div>
+      <div class="card">
+        <h3>تقرير الفحص</h3>
+        <div id="an-issues" class="muted">لم يتم فحص ملفات.</div>
+        <h3>المضغوطات</h3>
+        <div id="an-archives" class="muted">مفيش أرشيفات اتفحصت.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ إنشاء مستند ============ -->
+  <section id="view-create" class="view">
+    <div class="split">
+      <div class="card editor-card">
+        <h2>المحرر</h2>
+        <div class="toolbar" id="fmt-toolbar">
+          <button data-cmd="bold"><b>B</b></button>
+          <button data-cmd="italic"><i>I</i></button>
+          <button data-cmd="underline"><u>U</u></button>
+          <button data-cmd="strikeThrough"><s>S</s></button>
+          <select id="block-type">
+            <option value="p">نص عادي</option>
+            <option value="h1">عنوان 1</option>
+            <option value="h2">عنوان 2</option>
+            <option value="h3">عنوان 3</option>
+          </select>
+          <select id="font-size">
+            <option value="">حجم الخط</option>
+            <option value="2">صغير</option>
+            <option value="3">عادي</option>
+            <option value="5">كبير</option>
+            <option value="6">ضخم</option>
+          </select>
+          <button data-cmd="justifyRight">يمين</button>
+          <button data-cmd="justifyCenter">وسط</button>
+          <button data-cmd="justifyLeft">يسار</button>
+          <input type="color" id="text-color" title="لون النص">
+        </div>
+        <div id="blocks"></div>
+        <div class="add-row">
+          <button id="add-text" class="ghost">＋ إضافة نص</button>
+          <button id="add-image" class="ghost">＋ إضافة صورة</button>
+          <input type="file" id="file-inline" accept="image/*" multiple hidden>
+        </div>
+      </div>
+      <aside class="card side-card">
+        <h3>الملفات للمحرر</h3>
+        <p class="muted">ارفع صور أو PDF/Word/نص وهتتحول لقطع تقدر ترتبها</p>
+        <div id="drop-create" class="dropzone small">
+          <input type="file" id="file-create" multiple hidden>
+          <div class="dz-inner">📥 رفع ملفات</div>
+        </div>
+        <h3>الحفظ</h3>
+        <label>اسم المستند</label>
+        <input type="text" id="doc-name" value="مستندي" class="text-in">
+        <label>الصيغة</label>
+        <div class="chips" id="create-fmts">
+          <button class="chip active" data-fmt="pdf">PDF</button>
+          <button class="chip" data-fmt="docx">Word</button>
+          <button class="chip" data-fmt="pptx">PowerPoint</button>
+          <button class="chip" data-fmt="png">PNG</button>
+          <button class="chip" data-fmt="jpg">JPG</button>
+          <button class="chip" data-fmt="html">HTML</button>
+          <button class="chip" data-fmt="md">Markdown</button>
+          <button class="chip" data-fmt="txt">نص</button>
+        </div>
+        <button id="btn-create" class="primary">حفظ وتصدير ⬇</button>
+        <div id="create-status" class="status"></div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
