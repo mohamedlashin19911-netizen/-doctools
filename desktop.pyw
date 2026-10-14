@@ -32,7 +32,7 @@ def main():
                 break
             time.sleep(0.2)
     webview.create_window(
-        "DocTools", URL + "/",
+        "DocTools", URL + "/?mode=desktop",
         width=1280, height=860, min_size=(940, 620),
     )
     webview.start()

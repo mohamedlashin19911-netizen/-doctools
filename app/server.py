@@ -303,6 +303,48 @@ async def scan_file_api(request: Request):
         return JSONResponse({"error": f"فشل الفحص: {e}"}, status_code=400)
 
 
+@app.post("/api/install-desktop")
+def install_desktop():
+    """ينشئ اختصار DocTools في قائمة Start على الجهاز الحالي (ويندوز فقط)."""
+    import subprocess
+    import sys
+    import tempfile
+    if os.name != "nt":
+        return JSONResponse({"error": "التثبيت كتطبيق متاح على ويندوز فقط"}, status_code=400)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    dsk = os.path.join(root, "desktop.pyw")
+    if not os.path.exists(dsk):
+        return JSONResponse({"error": "ملف desktop.pyw غير موجود — نزّل النسخة الكاملة"}, status_code=400)
+    pyw = os.path.join(os.path.dirname(sys.executable), "pythonw.exe")
+    if not os.path.exists(pyw):
+        pyw = sys.executable
+    ico = os.path.join(root, "app.ico")
+    icon_line = f"$lnk.IconLocation = '{ico},0'" if os.path.exists(ico) else ""
+    ps = f"""
+$ws = New-Object -ComObject WScript.Shell
+$path = Join-Path $env:APPDATA 'Microsoft\\Windows\\Start Menu\\Programs\\DocTools.lnk'
+$lnk = $ws.CreateShortcut($path)
+$lnk.TargetPath = '{pyw}'
+$lnk.Arguments = '"{dsk}"'
+$lnk.WorkingDirectory = '{root}'
+{icon_line}
+$lnk.Description = 'Local document tools - 100% offline'
+$lnk.Save()
+if (Test-Path $path) {{ Write-Output 'OK' }} else {{ Write-Output 'MISSING' }}
+"""
+    tmp = os.path.join(tempfile.gettempdir(), "doctools_install.ps1")
+    with open(tmp, "w", encoding="utf-16") as f:
+        f.write(ps)
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", tmp],
+                           capture_output=True, text=True, timeout=30, creationflags=0x08000000)
+        if "OK" in (r.stdout or ""):
+            return {"ok": True}
+        return JSONResponse({"error": "تعذر إنشاء الاختصار في قائمة Start"}, status_code=500)
+    except Exception as e:
+        return JSONResponse({"error": f"فشل التثبيت: {e}"}, status_code=500)
+
+
 @app.post("/api/scan")
 async def scan_api(files: list[UploadFile] = File(...)):
     """فحص دفعات من الملفات المرفوعة (شرائح أول 64KB لكل ملف) — اسم + نوع حقيقي."""

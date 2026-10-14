@@ -699,3 +699,30 @@ $("#btn-create").addEventListener("click", async () => {
 
 makeBlock("<h1>عنوان المستند</h1>");
 makeBlock("<p>ابدأ الكتابة هنا، أو ارفع ملفات من الجانب.</p>");
+
+/* ---------- تثبيت كتطبيق سطح مكتب ---------- */
+if (location.search.includes("mode=desktop")) {
+  $("#btn-install").remove();
+} else {
+$("#btn-install").addEventListener("click", async () => {
+  const b = $("#btn-install");
+  b.disabled = true;
+  b.innerHTML = '<span class="spin"></span> جاري التثبيت…';
+  try {
+    const r = await fetch("/api/install-desktop", { method: "POST" });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) {
+      b.innerHTML = "✔ اتثبت";
+      toast("✅ DocTools اتثبت — افتح قائمة Start ودوّر DocTools ← كليك يمين ← Pin to Start");
+    } else {
+      b.innerHTML = "🖥️ ثبّت كتطبيق";
+      toast(d.error || "فشل التثبيت", false);
+    }
+  } catch (e) {
+    b.innerHTML = "🖥️ ثبّت كتطبيق";
+    toast("فشل الاتصال بالسيرفر", false);
+  } finally {
+    b.disabled = false;
+  }
+});
+}
